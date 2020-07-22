@@ -97,4 +97,22 @@ defmodule Protobuf.BuilderTest do
     assert %TestMsg.Ext.DualNonUse{b: %{__struct__: "hello"}} ==
              TestMsg.Ext.DualNonUse.new(b: %{__struct__: "hello"})
   end
+
+  test "new_and_verify!/1 builds struct" do
+    result = Foo.Bar.new_and_verify!(a: 20, b: "test")
+    assert result.a == 20
+    assert result.b == "test"
+  end
+
+  test "new_and_verify!/1 raises on invalid data type" do
+    assert_raise Protobuf.EncodeError, fn ->
+      Foo.Bar.new_and_verify!(a: "invalid type", b: "test")
+    end
+  end
+
+  test "new_and_verify!/1 raises on invalid enum value" do
+    assert_raise Protobuf.EncodeError, fn ->
+      Foo.new_and_verify!(j: :invalid_value)
+    end
+  end
 end

@@ -54,6 +54,15 @@ defmodule Protobuf do
         Protobuf.Builder.new!(__MODULE__, attrs)
       end
 
+      def new_and_verify!(attrs) do
+        struct = Protobuf.Builder.new!(__MODULE__, attrs)
+
+        # Will raise if unable to encode.
+        Protobuf.Encoder.encode(struct)
+
+        struct
+      end
+
       unquote(def_encode_decode())
     end
   end
@@ -81,6 +90,13 @@ defmodule Protobuf do
   errors will be raised if unknown keys are passed.
   """
   @callback new!(Enum.t()) :: struct
+
+  @doc """
+  Similar to `new!/1`, but also verifies that the struct can be encoded.
+  Will raise if built struct cannot be encoded. Struct returned is guaranteed to be
+  able to be encoded.
+  """
+  @callback new_and_verify!(Enum.t()) :: struct
 
   @doc """
   Encode the struct to a protobuf binary.
