@@ -62,17 +62,24 @@ defmodule Protobuf do
           Foo.new_and_verify!(a: 123)
 
       would raise an exception.
+
+      It does no verification in production.
       """
       def new_and_verify!(attrs) do
         struct = Protobuf.Builder.new!(__MODULE__, attrs)
 
-        case Protobuf.Verifier.verify(struct) do
-          {:error, messages} ->
-            raise Protobuf.VerificationError, message: Enum.join(messages, "\n\t")
-
-          :ok ->
-            struct
+        quote do
+          if Mix.env != :prod do
+            unquote do
+              case Protobuf.Verifier.verify(struct) do
+                {:error, messages} -> raise Protobuf.VerificationError, message: Enum.join(messages, "\n\t")
+                :ok -> nil
+              end
+            end
+          end
         end
+
+        struct
       end
 
       unquote(def_encode_decode())

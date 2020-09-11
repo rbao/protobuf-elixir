@@ -392,7 +392,8 @@ defmodule Protobuf.VerifierTest do
       assert result.b == "test"
     end
 
-    test "raises on invalid value" do
+    test "raises on invalid value if mix env is not prod (like in this test)" do
+      # it's hard to test using Mix.env(:prod) cause we can't trigger this test's dependency to recompile
       assert_raise Protobuf.VerificationError, fn ->
         TestMsg.Foo.new_and_verify!(j: :invalid_value)
       end
